@@ -50,9 +50,9 @@ public class PokemonServlet extends HttpServlet {
 
                 Statement stm = con.createStatement();
 
-                String insert = "INSERT INTO pokemon (nome,cp,gen,candy"+
-                        "VALUES ('"+ request.getParameter("nome") +"','" + request.getParameter("tipo")+"',"
-                        + request.getParameter("tipo") + "'," + "'" + request.getParameter("tipo") + "')";
+                String insert = "INSERT INTO pokemon (nome,cp,gen,candy) "+
+                        "VALUES ('"+ request.getParameter("nome") +"','" + request.getParameter("cp")+"',"
+                        + request.getParameter("gen") + "'," + "'" + request.getParameter("candy") + "')";
                 stm.executeUpdate(insert);
                 
                 String sql = "SELECT * FROM pokemon ORDER BY RAND() LIMIT 20";
