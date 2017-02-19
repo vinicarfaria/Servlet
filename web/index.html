@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>POGOBOX</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script src="js/jquery-3.1.1.min.js"></script>
+        <script>
+            function carregarAlunosJSON() {
+
+                //$("div#loading").toggle();
+                
+                //date : $("for#id").serialize();
+
+                jQuery.ajax(
+                    {
+                        type: "POST",
+                        cache: false,
+                        url: "PokemonServlet",
+                        data : { tipo : "json",
+                                 nome : $("txt-nome").val(),
+                                 cp : $("txt-cp").val(),
+                                 gen : $("txt-gen").val(),
+                                 candy : $("txt-candy").val()},
+                        dataType: "json",
+                        success: function (retorno) {
+                            for (i=0; i< retorno.length; i++) {
+                                $("table#tabela")
+                                .append("<tr><td>"+retorno[i].nome+"</td><td>"+retorno[i].cp+"</td><td>"+retorno[i].gen+"</td><td>"+retorno[i].candy+"</td></tr>");
+                            }
+                        },
+                        error: function () {
+                        },
+                        complete: function () {
+                            //$("div#loading").toggle();
+                            $("table#tabela").toggle();
+                        }
+                    }
+                );
+
+
+            }
+        </script>
+        <style>
+            .container {
+                width: 500px;
+                clear: both;
+            }
+            .container input {
+                width: 100%;
+                clear: both;
+                border-radius: 3px;
+                margin-bottom: 5px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <form>
+                <label for="txt-nome">Nome do Pokemon:</label>
+                <input id="txt-nome" name="txt-nome" type="text" />
+                <br />
+                <label for="txt-cp">CP:</label>
+                <input id="txt-cp" name="txt-cp" type="text" />            
+                <br />
+                <label for="txt-gen">Gênero:</label>
+                <select id="txt-gen" name="txt-gen">
+                    <option value="Masculino">Masculino</option>
+                    <option value="Feminino">Feminino</option>
+                </select>
+                <br />
+                <label for="txt-candy">Candy:</label>
+                <input id="txt-candy" name="txt-candy" type="number" />
+                <br />
+                <br />
+                <button onClick="carregarAlunosJSON();">Enviar</button>
+            </form>
+            <br />
+            <br />
+            <table id="tabela" style="width:100%">
+                <tr>
+                  <th>Nome</th>
+                  <th>CP</th> 
+                  <th>Genero</th>
+                  <th>Candy</th>
+                </tr>
+            </table>
+        </div>
+    </body>
+</html>
