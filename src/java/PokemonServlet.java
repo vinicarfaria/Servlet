@@ -19,6 +19,7 @@ import javax.servlet.http.HttpServletResponse;
 import model.Pokemon;
 import util.ConBD;
 import com.google.gson.Gson;
+import java.sql.PreparedStatement;
 
 /**
  *
@@ -47,52 +48,58 @@ public class PokemonServlet extends HttpServlet {
                 if (con == null) {
                     throw new SQLException("Erro conectando");
                 }
-
-                Statement stm = con.createStatement();
-
-                String insert = "INSERT INTO pokemon (nome,cp,gen,candy) "+
-                        "VALUES ('"+ request.getParameter("txt-nome") +"','" + request.getParameter("txt-cp")+"',"
-                        + request.getParameter("txt-gen") + "'," + "'" + request.getParameter("txt-candy") + "')";
-                stm.executeUpdate(insert);
-                
-                String sql = "SELECT * FROM pokemon ORDER BY RAND() LIMIT 20";
-
-                ResultSet rs = stm.executeQuery(sql);            
-            
-            if (request.getParameter("tipo").equals("json")) {
-
                 Gson gson = new Gson();
+                Statement stm = con.createStatement();
                 
-                ArrayList<Pokemon> listaPokemons = new ArrayList<Pokemon>();
+                //request.getparameter não pega os parametros
+                Pokemon pokemon = new Pokemon();
+                pokemon.setNome(gson.toJson(request.getParameter("txt-nome")));
+                pokemon.setCp(request.getParameter("txt-cp"));
+                pokemon.setGen(request.getParameter("txt-gen"));
+                pokemon.setCandy(request.getParameter("txt-candy"));
+                out.println(pokemon.getNome());
+                //String nome = request.getParameter("txt-nome");
+                //String cp = request.getParameter("txt-cp");
+                //String gen = request.getParameter("txt-gen");
+                //String candy = request.getParameter("txt-candy");
                 
-                while (rs.next()) {
-                    Pokemon a = new Pokemon();
-                    a.setNome(rs.getString("nome"));
-                    a.setCp(rs.getString("cp"));
-                    a.setGen(rs.getString("gen"));
-                    a.setCandy(rs.getString("candy"));
-                    listaPokemons.add(a);
-                }
+                //String insert = "INSERT INTO pokemon (nome,cp,gen,candy) "+" VALUES('"+ request.getParameter("txt-nome")+"','"+request.getParameter("txt-cp")+"','"+request.getParameter("txt-gen")+"','"+request.getParameter("txt-candy")+"');";
+                String insert = "INSERT INTO pokemon (nome,cp,gen,candy)" + 
+                                "VALUES(?, ?, ?, ?)";
+                PreparedStatement preparedStatement = con.prepareStatement(insert);
+                preparedStatement.setString(1, pokemon.getNome());
+                preparedStatement.setString(2, pokemon.getCp());
+                preparedStatement.setString(3, pokemon.getGen());
+                preparedStatement.setString(4, pokemon.getCandy());
+                preparedStatement.executeUpdate();
                 
-                response.setContentType("application/json;charset=UTF-8");
-                
-                
-                out.println(gson.toJson(listaPokemons));
-                
-                
-            } else {
-                
-                response.setContentType("text/html;charset=UTF-8");
+                String sql = "SELECT * FROM pokemon";
 
+                ResultSet rs = stm.executeQuery(sql);  
                 
+            
+            
 
-                while (rs.next()) {
-                    response.getWriter()
-                            .println("<p>"
-                            + rs.getString("nome") + "</p>");
-                }
+            
 
+            ArrayList<Pokemon> listaPokemons = new ArrayList<Pokemon>();
+
+            while (rs.next()) {
+                Pokemon a = new Pokemon();
+                a.setNome(rs.getString("nome"));
+                a.setCp(rs.getString("cp"));
+                a.setGen(rs.getString("gen"));
+                a.setCandy(rs.getString("candy"));
+                listaPokemons.add(a);
             }
+
+            response.setContentType("application/json;charset=UTF-8");
+
+
+            out.println(gson.toJson(listaPokemons));
+
+                
+        
         } catch (SQLException ex) {
 
         } catch (Exception e) {

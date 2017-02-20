@@ -16,18 +16,18 @@ and open the template in the editor.
                 //$("div#loading").toggle();
                 
                 //date : $("for#id").serialize();
+                var nome = $( "#txt-nome" ).val();
+                var cp = $( "#txt-cp" ).val();
+                var gen = $( "#txt-gen" ).val();
+                var candy = $( "#txt-candy" ).val();
 
                 jQuery.ajax(
                     {
                         type: "POST",
                         cache: false,
                         url: "PokemonServlet",
-                        data : { tipo : "json",
-                                 nome : $("txt-nome").val(),
-                                 cp : $("txt-cp").val(),
-                                 gen : $("txt-gen").val(),
-                                 candy : $("txt-candy").val()},
-                        dataType: "json",
+                        data : { nome, cp, gen, candy},
+                        dataType: "JSON",
                         success: function (retorno) {
                             for (i=0; i< retorno.length; i++) {
                                 $("table#tabela")
@@ -69,7 +69,7 @@ and open the template in the editor.
                 <input id="txt-cp" name="txt-cp" type="text" />            
                 <br />
                 <label for="txt-gen">Gênero:</label>
-                <select id="txt-gen" name="txt-gen">
+                <select id="txt-gen" name="txt-gen" >
                     <option value="Masculino">Masculino</option>
                     <option value="Feminino">Feminino</option>
                 </select>
