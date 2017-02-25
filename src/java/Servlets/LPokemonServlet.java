@@ -3,7 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
+package Servlets;
 
+import com.google.gson.Gson;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.Connection;
@@ -18,15 +20,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import model.Pokemon;
 import util.ConBD;
-import com.google.gson.Gson;
-import java.sql.PreparedStatement;
 
 /**
  *
  * @author Vinicius
  */
-@WebServlet(name = "PokemonServlet", urlPatterns = {"/PokemonServlet"})
-public class PokemonServlet extends HttpServlet {
+@WebServlet(name = "LPokemonServlet", urlPatterns = {"/LPokemonServlet"})
+public class LPokemonServlet extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -39,43 +39,36 @@ public class PokemonServlet extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
+        response.setContentType("text/html;charset=UTF-8");
         try (PrintWriter out = response.getWriter()) {
             /* TODO output your page here. You may use following sample code. */
-
+            
+            
             Connection con = ConBD.getConnection();
 
             if (con == null) {
                 throw new SQLException("Erro conectando");
             }
-            Gson gson = new Gson();
-            Statement stm = con.createStatement();
-
-
-            Pokemon pokemon = new Pokemon();
-            pokemon.setNome(request.getParameter("txt-nome"));
-            pokemon.setCp(request.getParameter("txt-cp"));
-            pokemon.setGen(request.getParameter("txt-gen"));
-            pokemon.setCandy(request.getParameter("txt-candy"));
-            out.println(pokemon.getNome());
-
-            String insert = "INSERT INTO pokemon (nome,cp,gen,candy)" + 
-                            "VALUES(?, ?, ?, ?)";
-            PreparedStatement preparedStatement = con.prepareStatement(insert);
-            preparedStatement.setString(1, pokemon.getNome());
-            preparedStatement.setString(2, pokemon.getCp());
-            preparedStatement.setString(3, pokemon.getGen());
-            preparedStatement.setString(4, pokemon.getCandy());
-            preparedStatement.executeUpdate();
-
+           
+                Statement stm = con.createStatement();
+                String sql = "SELECT * FROM pokemon";
+                ResultSet rs = stm.executeQuery(sql);
+                Gson gson = new Gson();                
+                ArrayList<Pokemon> listaPokemon = new ArrayList<>();                
+                while (rs.next()) {     
+                    Pokemon t = new Pokemon();
+                    t.setNome(rs.getString("nome"));
+                    t.setCp (rs.getString("cp"));
+                    t.setGen(rs.getString("gen"));
+                    t.setCandy(rs.getString("candy"));
+                    listaPokemon.add(t);
+                }
+                response.setContentType("application/json;charset=UTF-8");
+                out.println(gson.toJson(listaPokemon));
                 
-        
         } catch (SQLException ex) {
 
-        } catch (Exception e) {
-
-        }
-        
+        } catch (Exception e) {}
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

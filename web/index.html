@@ -11,39 +11,68 @@ and open the template in the editor.
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <script src="js/jquery-3.1.1.min.js"></script>
         <script>
-            function carregarAlunosJSON() {
 
-                //$("div#loading").toggle();
+
+            function SalvarPokemonsJSON() {
+                $('#alerta').empty();
                 
+                //$("div#loading").toggle();
+
                 //date : $("for#id").serialize();
-                var nome = $( "#txt-nome" ).val();
-                var cp = $( "#txt-cp" ).val();
-                var gen = $( "#txt-gen" ).val();
-                var candy = $( "#txt-candy" ).val();
 
                 jQuery.ajax(
-                    {
-                        type: "POST",
-                        cache: false,
-                        url: "PokemonServlet",
-                        data : { nome, cp, gen, candy},
-                        dataType: "JSON",
-                        success: function (retorno) {
-                            for (i=0; i< retorno.length; i++) {
-                                $("table#tabela")
-                                .append("<tr><td>"+retorno[i].nome+"</td><td>"+retorno[i].cp+"</td><td>"+retorno[i].gen+"</td><td>"+retorno[i].candy+"</td></tr>");
+                        {
+                            type: "POST",
+                            cache: false,
+                            url: "PokemonServlet",
+                            data: $("form#frm-cadastra-pokemon").serialize(),
+                            dataType: "json",
+                            success: function () {
+                                
+                            },
+                            error: function () {
+                            },
+                            complete: function () {
+                                $('#alerta').append(""+$('#txt-nome').val()+" cadastrado com sucesso!");
+                                $('#txt-nome').val('');
+                                $('#txt-cp').val('');
+                                $('#txt-candy').val('');
+                                var disp = $('#tabela').css('display');
+                                if (disp !== 'none'){
+                                    CarregarPokemonsJSON();
+                                }
                             }
-                        },
-                        error: function () {
-                        },
-                        complete: function () {
-                            //$("div#loading").toggle();
-                            $("table#tabela").toggle();
                         }
-                    }
                 );
 
+                return false;
 
+
+            }
+            function CarregarPokemonsJSON() {
+                $('#tabela').empty();
+                $.ajax({
+                    type: "POST",
+                    cache: false,
+                    url: "LPokemonServlet",
+                    success: function (dados) {
+                        $('#tabela').append('<tr><th>Nome</th><th>CP</th><th>Genero</th><th>Candy</th</tr>');
+                        for (i=0; i< dados.length; i++) {
+                            $('#tabela').append('<tr><td>'+dados[i].nome+'</td><td>'+dados[i].cp+'</td><td>'+dados[i].gen+'</td><td>'+dados[i].candy+'</td></tr>)');
+                        }
+                    },
+                    error: function () {
+                    },
+                    complete: function () {
+                        var disp = $('#tabela').css('display');
+                        if (disp == 'none'){
+                            $('#tabela').toggle();
+                        }
+                    }
+                });
+            }
+            function EsconderPokemons() {
+                $('#tabela').toggle();
             }
         </script>
         <style>
@@ -57,11 +86,22 @@ and open the template in the editor.
                 border-radius: 3px;
                 margin-bottom: 5px;
             }
+            table {
+                border-collapse: collapse;
+                width: 100%;
+            }
+
+            th, td {
+                text-align: center;
+                padding: 8px;
+            }
+
+            tr:nth-child(even){background-color: #f2f2f2}
         </style>
     </head>
     <body>
         <div class="container">
-            <form>
+            <form id="frm-cadastra-pokemon">
                 <label for="txt-nome">Nome do Pokemon:</label>
                 <input id="txt-nome" name="txt-nome" type="text" />
                 <br />
@@ -78,17 +118,15 @@ and open the template in the editor.
                 <input id="txt-candy" name="txt-candy" type="text" />
                 <br />
                 <br />
-                <button onClick="carregarAlunosJSON();">Enviar</button>
             </form>
+            <button style="margin-bottom: 5px" onclick="SalvarPokemonsJSON();">Salvar</button><br />
+            <label id="alerta" style="width:100%; margin: 5px"></label><br />
+            <button onclick="CarregarPokemonsJSON();">Mostrar Pokémons</button>
+            <button style="display:inline-block" onclick="EsconderPokemons();">Esconder Pokémons</button>
             <br />
             <br />
-            <table id="tabela" style="width:100%">
-                <tr>
-                  <th>Nome</th>
-                  <th>CP</th> 
-                  <th>Genero</th>
-                  <th>Candy</th>
-                </tr>
+            <table id="tabela" style="width:100%; display: none">
+                
             </table>
         </div>
     </body>
